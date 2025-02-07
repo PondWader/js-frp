@@ -1,5 +1,5 @@
 import FRPBase from "./Base";
-import { ClientConf } from "../Types/ClientConf";
+import { ClientConf } from "../types/ClientConf";
 import ini from 'ini';
 
 class FRPClient extends FRPBase {

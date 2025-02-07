@@ -1,5 +1,5 @@
 import FRPBase from "./Base";
-import { ServerConf } from "../Types/ServerConf";
+import { ServerConf } from "../types/ServerConf";
 import ini from 'ini';
 
 class FRPServer extends FRPBase {
@@ -9,7 +9,7 @@ class FRPServer extends FRPBase {
      */
     constructor(config?: ServerConf) {
         super('frps');
-        
+
         if (config) this._writeConfig(ini.stringify(config));
     }
 

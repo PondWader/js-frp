@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import download from '../FRPUtil/download';
 import fs from 'fs';
 import path from 'path';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
@@ -48,7 +47,6 @@ export default class FRPBase extends EventEmitter {
     }
 
     private async _download() {
-        this.binaryDir = await download();
     }
 
     async _writeConfig(conf: string) {
