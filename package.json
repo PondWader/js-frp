@@ -5,7 +5,9 @@
   "main": "dist",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && npm run build:frp && npm run build:copy-wasm-exec",
+    "build:frp": "cd frp && env GOOS=js GOARCH=wasm go build -trimpath -o ../lib/frps.wasm ./cmd/frps && env GOOS=js GOARCH=wasm go build -trimpath -o ../lib/frpc.wasm ./cmd/frpc",
+    "build:copy-wasm-exec": "node ./build/wasm_exec_builder.mjs"
   },
   "author": "PondWader",
   "license": "MIT",
