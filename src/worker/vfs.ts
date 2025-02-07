@@ -8,7 +8,7 @@ type FileHandle = {
     readOffset: number;
 }
 
-module.exports.createVfs = (files: Record<string, Buffer>) => {
+module.exports.createVfs = (files: Record<string, Buffer>, stdFdWriter: (fd: number, buffer: NodeJS.ArrayBufferView) => void) => {
     let currentFd = PROC_FD_MAX;
     const handles = new Map<number, FileHandle>();
 
@@ -29,11 +29,18 @@ module.exports.createVfs = (files: Record<string, Buffer>) => {
             callback(new Error('File not found.'), 0);
         },
         writeSync(fd: number, ...args: any[]) {
-            if (fd <= PROC_FD_MAX) return fs.writeSync.apply(fs, [fd, ...args] as any);
+            if (fd <= PROC_FD_MAX) {
+                stdFdWriter(fd, args[0]);
+                return args[0].length;
+            }
             throw new Error('Writing to files is not allowed.');
         },
         write(fd: number, ...args: any[]) {
-            if (fd <= PROC_FD_MAX) return fs.write.apply(fs, [fd, ...args] as any);
+            if (fd <= PROC_FD_MAX) {
+                stdFdWriter(fd, args[0]);
+                args[args.length - 1](null, args[0].length, args[0]);
+                return;
+            }
             args[args.length - 1](new Error('Writing to files is not allowed.'), null);
         },
         fstat(fd: number, ...args: any[]) {

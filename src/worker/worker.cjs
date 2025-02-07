@@ -2,10 +2,14 @@ const { parentPort, workerData } = require('node:worker_threads');
 const path = require('node:path');
 const fs = require('node:fs');
 
+const textDecoder = new TextDecoder();
+
 // Setup globals for use in Go's wasm_exec.js
 globalThis.require = require;
 globalThis.fs = require("./vfs.js").createVfs({
     [workerData.bin + '.toml']: Buffer.from(workerData.config)
+}, (_, buf) => {
+    parentPort.postMessage(textDecoder.decode(buf));
 });
 
 // Resolve frp paths
