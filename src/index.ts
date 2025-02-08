@@ -83,7 +83,7 @@ export class FRPClient extends FRP<ClientConf> {
 
 export class FRPServer extends FRP<ServerConf> {
     constructor(config?: ServerConf | string) {
-        super('client');
+        super('server');
         if (typeof config !== 'undefined') this.setConfig(config);
     }
 }
