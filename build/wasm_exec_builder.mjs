@@ -7,10 +7,6 @@ function prefixLines(str, prefix) {
     return str.split('\n').map(l => prefix + l).join('\n');
 }
 
-function destructure(objectName, values) {
-    return `const { ${values.join(', ')} } = ${objectName};`
-}
-
 const GOROOT = child_process.execSync('go env GOROOT').toString().trim();
 const GOLICENSE = fs.readFileSync(`${GOROOT}/LICENSE`, 'utf-8').replaceAll('\r', '').trim();
 

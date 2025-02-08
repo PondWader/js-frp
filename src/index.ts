@@ -4,6 +4,8 @@ import { EventEmitter } from "node:stream";
 import type { ClientConf } from "./types/ClientConf";
 import type { ServerConf } from "./types/ServerConf";
 
+export const frpVersion = require('../package.json').frpVersion;
+
 class FRP<T extends ClientConf | ServerConf> extends EventEmitter {
     // @ts-expect-error - defined with Object.defineProperty
     readonly type: string;
