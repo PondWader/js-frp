@@ -4,3 +4,6 @@ examples
 tsconfig.json
 frp
 build
+/dist/worker/*.d.ts
+/dist/worker/*.d.cts
+/dist/types/*.js

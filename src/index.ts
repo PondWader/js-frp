@@ -4,16 +4,21 @@ import { EventEmitter } from "node:stream";
 import type { ClientConf } from "./types/ClientConf";
 import type { ServerConf } from "./types/ServerConf";
 
-export const frpVersion = require('../package.json').frpVersion;
+export const frpVersion: string = require('../package.json').frpVersion;
 
 class FRP<T extends ClientConf | ServerConf> extends EventEmitter {
     // @ts-expect-error - defined with Object.defineProperty
-    readonly type: string;
+    readonly type: 'client' | 'server';
     #config?: string;
     #worker?: Worker;
 
     constructor(type: 'client' | 'server') {
         super();
+
+        if (type !== 'client' && type !== 'server') {
+            throw new Error('Invalid frp type, must be "client" or "server".');
+        }
+
         Object.defineProperty(this, 'type', {
             value: type,
             writable: false,
@@ -35,7 +40,7 @@ class FRP<T extends ClientConf | ServerConf> extends EventEmitter {
 
         const worker = new Worker(path.join(__dirname, './worker/worker.cjs'), {
             workerData: {
-                bin: this.type,
+                bin: this.type === 'client' ? 'frpc' : 'frps',
                 config: this.#config
             }
         });
@@ -98,7 +103,7 @@ export function start<T extends 'client' | 'server'>(
         return new FRPServer(config).start() as any;
     };
 
-    throw new Error('Invalid client type, must be "client" or "server".');
+    throw new Error('Invalid frp type, must be "client" or "server".');
 }
 
 export { ClientConf, ServerConf };
