@@ -1,12 +1,14 @@
 {
   "name": "js-frp",
   "version": "0.2.1",
+  "frpVersion": "0.61.1",
   "description": "A library written in TypeScript for managing FRP instances. FRP is a fast reverse proxy to help you expose a local server behind a NAT or firewall to the Internet.",
   "main": "dist/index.js",
   "type": "commonjs",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc && npm run build:frp && npm run build:copy-wasm-exec",
+    "build": "tsc && npm run download:frp && npm run build:frp && npm run build:copy-wasm-exec",
+    "download:frp": "node ./build/download_frp.mjs",
     "build:frp": "cd frp && env GOOS=js GOARCH=wasm go build -trimpath -tags frps -ldflags='-s -w' -o ../lib/frps.wasm ./cmd/frps && env GOOS=js GOARCH=wasm go build -trimpath -tags frpc -ldflags='-s -w' -o ../lib/frpc.wasm ./cmd/frpc",
     "build:copy-wasm-exec": "node ./build/wasm_exec_builder.mjs"
   },
@@ -26,14 +28,8 @@
   },
   "homepage": "https://github.com/PondWader/js-frp#readme",
   "devDependencies": {
-    "@types/decompress": "^4.2.4",
-    "@types/ini": "^1.3.31",
     "@types/node": "^18.0.3",
+    "tar-stream": "^3.1.7",
     "typescript": "^4.7.4"
-  },
-  "dependencies": {
-    "decompress": "^4.2.1",
-    "ini": "^3.0.0",
-    "node-downloader-helper": "^2.1.1"
   }
 }
