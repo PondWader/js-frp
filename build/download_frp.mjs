@@ -7,6 +7,7 @@ import zlib from "node:zlib"
 import packageJson from "../package.json" with { type: "json" };
 
 const OUT_DIR = './frp';
+const LICENSE_DIST_PATH = './lib/LICENSE';
 
 const frpVersion = packageJson.frpVersion;
 const url = `https://codeload.github.com/fatedier/frp/tar.gz/refs/tags/v${frpVersion}`;
@@ -29,6 +30,15 @@ if (fs.existsSync(versionFile)) {
 }
 
 if (fs.existsSync(OUT_DIR)) fs.rmSync(OUT_DIR, { recursive: true, force: true });
+
+process.on('beforeExit', exitCode => {
+    if (exitCode === 0) {
+        // Finish by writing files
+        if (!fs.existsSync(path.dirname(LICENSE_DIST_PATH))) fs.mkdirSync(path.dirname(LICENSE_DIST_PATH));
+        fs.copyFileSync(path.join(OUT_DIR, 'LICENSE'), LICENSE_DIST_PATH);
+        fs.writeFileSync(versionFile, frpVersion);
+    }
+});
 
 https.get(url, res => {
     if (res.statusCode !== 200) throw new Error(`Received non-200 status code downloading FRP archive: ${res.statusCode}`);
@@ -53,9 +63,5 @@ https.get(url, res => {
             next();
         });
         stream.resume();
-    });
-
-    extractor.on('finish', () => {
-        fs.writeFileSync(versionFile, frpVersion);
     });
 });
