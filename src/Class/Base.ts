@@ -37,18 +37,18 @@ export default class FRPBase extends EventEmitter {
     public process: ChildProcessWithoutNullStreams | null;
     public stdout: Readable | null;
 
-    constructor(executableName: string) {
+    constructor(executableName: string, binariesDir?: string) {
         super();
 
         this.executableName = executableName;
-        this.downloadPromise = this._download();
+        this.downloadPromise = this._download(binariesDir);
         this.id = Math.floor(Math.random() * 1000000);
         this.process = null;
         this.stdout = null;
     }
 
-    private async _download() {
-        this.binaryDir = await download();
+    private async _download(directory?: string) {
+        this.binaryDir = await download(directory);
     }
 
     async _writeConfig(conf: string) {
