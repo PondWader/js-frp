@@ -4,46 +4,49 @@ import constants from './constants';
 import { DownloaderHelper } from 'node-downloader-helper';
 import decompress from 'decompress';
 
-let downloading = false;
-let resolveAwaiters: ((value: string) => void)[] = [];
+let downloading: Set<string> = new Set();
+let resolveAwaiters: { [path: string]: ((value: string) => void)[] } = {};
 
-export default async function downloadFRP() : Promise<string> {
-    // If file is already downloading add the promise to an array of promises to be resolved once it's downloaded
-    if (downloading) {
-        return new Promise((resolve) => resolveAwaiters.push(resolve));
-    }
-    downloading = true;
-
+export default async function downloadFRP(directory?: string) : Promise<string> {
     const platform = process.platform;
     const arch = process.arch;
-
+    
     let release = `frp_${constants.version}`;
     let releaseFile = '';
-
+    
     switch(platform) {
         case "win32":
             release += `_windows_${arch === 'x64' ? 'amd64' : '386'}`;
             releaseFile = release + '.zip';
             break;
-        case "freebsd":
-            release += `_freebsd_${arch === 'x64' ? 'amd64' : '386'}`;
-            releaseFile = release + '.tar.gz';
-            break;
-        case "darwin":
-            release += `_darwin_${arch === 'arm64' ? 'arm64' : 'amd64'}`;
-            releaseFile = release + '.tar.gz';
-            break;
-        case "linux":
-            release += `_linux_${arch.replace('x64', 'amd64')}`;
-            releaseFile = release + '.tar.gz';
-            break;
+            case "freebsd":
+                release += `_freebsd_${arch === 'x64' ? 'amd64' : '386'}`;
+                releaseFile = release + '.tar.gz';
+                break;
+                case "darwin":
+                    release += `_darwin_${arch === 'arm64' ? 'arm64' : 'amd64'}`;
+                    releaseFile = release + '.tar.gz';
+                    break;
+                    case "linux":
+                        release += `_linux_${arch.replace('x64', 'amd64')}`;
+                        releaseFile = release + '.tar.gz';
+                        break;
     }
-
+    
     if (release === `frp_${constants.version}`) throw new Error(`A release was not found for your operating system (Platform: ${platform} Arch: ${arch})`);
-
-    const binariesDir = path.join(__dirname, '../../lib');
+    
+    const binariesDir = path.resolve(directory || path.join(__dirname, '../../lib'));
     const binaryPath = path.join(binariesDir, release);
 
+    // If file is already downloading add the promise to an array of promises to be resolved once it's downloaded
+    if (downloading.has(binaryPath)) {
+        return new Promise((resolve) => {
+            if (!resolveAwaiters[binaryPath]) resolveAwaiters[binaryPath] = [];
+            resolveAwaiters[binaryPath].push(resolve);
+        });
+    }
+    downloading.add(binaryPath);
+    
     // Check if file exists or not
     const stat = await fs.stat(binaryPath).catch(() => {});
     if (stat) {
@@ -51,7 +54,7 @@ export default async function downloadFRP() : Promise<string> {
         resolvePromises(binaryPath);
         return binaryPath;
     }
-    await fs.mkdir(binariesDir).catch(() => {});
+    await fs.mkdir(binariesDir, { recursive: true });
 
     await downloadFiles(binariesDir, releaseFile, binaryPath);
 
@@ -89,9 +92,11 @@ async function cleanFiles(dir: string) {
 }
 
 function resolvePromises(value: string) {
-    downloading = false;
-    for (const resolve of resolveAwaiters) {
-        resolve(value);
+    downloading.delete(value);
+    if (resolveAwaiters[value]) {
+        for (const resolve of resolveAwaiters[value]) {
+            resolve(value);
+        }
+        delete resolveAwaiters[value];
     }
-    resolveAwaiters = [];
 }

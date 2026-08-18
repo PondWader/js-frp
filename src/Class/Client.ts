@@ -6,9 +6,10 @@ class FRPClient extends FRPBase {
     /**
      * Create a new FRP client instance
      * @param {ClientConf} config The config for the instance
+     * @param {string} binariesDir The directory to download the binaries to (optional)
      */
-    constructor(config?: ClientConf) {
-        super('frpc');
+    constructor(config?: ClientConf, binariesDir?: string) {
+        super('frpc', binariesDir);
 
         if (config) this._writeConfig(ini.stringify(config));
     }

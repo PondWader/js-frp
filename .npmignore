@@ -1,5 +1,6 @@
 src
 lib 
 test.js
+tests
 examples
 tsconfig.json

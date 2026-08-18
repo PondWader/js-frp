@@ -6,10 +6,11 @@ class FRPServer extends FRPBase {
     /**
      * Create a new FRP server instance
      * @param {ServerConf} config The config for the instance
+     * @param {string} binariesDir The directory to download the binaries to (optional)
      */
-    constructor(config?: ServerConf) {
-        super('frps');
-        
+    constructor(config?: ServerConf, binariesDir?: string) {
+        super('frps', binariesDir);
+
         if (config) this._writeConfig(ini.stringify(config));
     }
 
