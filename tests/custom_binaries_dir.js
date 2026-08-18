@@ -4,7 +4,7 @@ const path = require("node:path");
 const { FRPClient } = require("../dist");
 
 async function run() {
-    const customPath = path.resolve("./binaries");
+    const customPath = path.resolve("./binaries/frp");
     const client = new FRPClient({}, customPath);
     await client.start();
     await new Promise((resolve, reject) => {
