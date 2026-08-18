@@ -18,9 +18,9 @@ async function runTests() {
         let error;
         try {
             await test.run();
-        } catch (error) {
+        } catch (err) {
             failed++;
-            error = error || new Error("Unknown error");
+            error = err || new Error("Unknown error");
         }
         finally {
             const statusString = error ? `${ANSI_RED}failed!${ANSI_RESET}` : `${ANSI_GREEN}passed${ANSI_RESET}`;
