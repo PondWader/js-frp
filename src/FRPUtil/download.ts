@@ -54,7 +54,7 @@ export default async function downloadFRP(directory?: string) : Promise<string> 
         resolvePromises(binaryPath);
         return binaryPath;
     }
-    await fs.mkdir(binariesDir).catch(() => {});
+    await fs.mkdir(binariesDir, { recursive: true });
 
     await downloadFiles(binariesDir, releaseFile, binaryPath);
 
